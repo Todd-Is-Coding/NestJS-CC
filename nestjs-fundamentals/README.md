@@ -1,26 +1,33 @@
-# NestJS Fundamentals
+# NestJS Fundamentals - Complete Documentation
 
 > A production-ready backend foundation demonstrating enterprise-grade NestJS architecture, clean code practices, and scalable system design patterns.
 
 ## Table of Contents
 
-- [Executive Overview](#executive-overview)
-- [Quick Start](#quick-start)
-- [Technology Stack](#technology-stack)
-- [Architecture Overview](#architecture-overview)
-- [Project Structure](#project-structure)
-- [API Documentation](#api-documentation)
-- [Design Patterns](#design-patterns)
-- [Security Architecture](#security-architecture)
-- [Performance Considerations](#performance-considerations)
-- [Testing Strategy](#testing-strategy)
-- [Development & Deployment](#development--deployment)
-- [Production Readiness](#production-readiness)
-- [Interview Preparation](#interview-preparation)
+1. [Introduction](#introduction)
+2. [Project Setup](#project-setup)
+3. [Express Core Concepts](#express-core-concepts)
+4. [Routing Architecture](#routing-architecture)
+5. [Middleware Deep Dive](#middleware-deep-dive)
+6. [Request & Response Handling](#request--response-handling)
+7. [Environment Configuration](#environment-configuration)
+8. [MVC Architecture](#mvc-architecture)
+9. [Production Folder Structure](#production-folder-structure)
+10. [Validation Strategy](#validation-strategy)
+11. [Authentication & Authorization](#authentication--authorization)
+12. [Error Handling](#error-handling)
+13. [Logging & Observability](#logging--observability)
+14. [Security Best Practices](#security-best-practices)
+15. [Database Integration](#database-integration)
+16. [Performance Optimization](#performance-optimization)
+17. [Testing Strategy](#testing-strategy)
+18. [CI/CD Pipeline](#cicd-pipeline)
+19. [Deployment](#deployment)
+20. [Production Example Project](#production-example-project)
 
 ---
 
-## Executive Overview
+## Introduction
 
 ### What This Project Is
 
@@ -52,24 +59,19 @@ This project employs **dependency injection-driven modular architecture** with c
 - **Business Logic Layer**: Services encapsulating domain logic
 - **Infrastructure Layer**: Database access, external APIs, caching (when added)
 
-This layering enables:
-
-- Independent testing of business logic
-- Easy mocking of dependencies
-- Technology-agnostic business logic
-- Clear API contracts
-
 ---
 
-## Quick Start
+## Project Setup
 
-### Prerequisites
+### Quick Start
+
+#### Prerequisites
 
 - Node.js >= 18.x
 - npm >= 9.x or yarn >= 3.x
 - TypeScript 5.7.x
 
-### Local Development
+#### Local Development
 
 ```bash
 # Clone repository
@@ -85,7 +87,16 @@ npm run start:dev
 # Server runs on http://localhost:3000
 ```
 
-### Build & Production
+#### Verify Installation
+
+```bash
+# Test basic endpoint
+curl http://localhost:3000
+
+# Response: "Hello World!"
+```
+
+#### Build & Production
 
 ```bash
 # Build TypeScript to JavaScript
@@ -98,791 +109,367 @@ npm run start:prod
 PORT=8080 npm run start:prod
 ```
 
-### Verify Installation
-
-```bash
-# Test basic endpoint
-curl http://localhost:3000
-
-# Response: "Hello World!"
-```
-
 ---
 
-## Technology Stack
+## Express Core Concepts
 
-### Core Framework
+### What is Express
 
-| Technology     | Version                        | Purpose                       |
-| -------------- | ------------------------------ | ----------------------------- |
-| **NestJS**     | ^11.0.1                        | Progressive Node.js framework |
-| **Express**    | (via @nestjs/platform-express) | HTTP server foundation        |
-| **Node.js**    | 18+                            | JavaScript runtime            |
-| **TypeScript** | ^5.7.3                         | Static typing & type safety   |
+Express is a minimal HTTP server framework for Node.js. NestJS uses Express as the underlying HTTP adapter by default.
 
-### Dependency Injection & Runtime
+### Key Express Concepts Used
 
-| Technology           | Version | Purpose                                      |
-| -------------------- | ------- | -------------------------------------------- |
-| **reflect-metadata** | ^0.2.2  | Runtime reflection for decorators            |
-| **RxJS**             | ^7.8.1  | Reactive streams (used by NestJS internally) |
-
-### Development & Build Tools
-
-| Tool                   | Version | Purpose                          |
-| ---------------------- | ------- | -------------------------------- |
-| **ts-loader**          | ^9.5.2  | TypeScript webpack loader        |
-| **ts-node**            | ^10.9.2 | TypeScript execution for Node.js |
-| **tsconfig-paths**     | ^4.2.0  | TypeScript path alias resolution |
-| **source-map-support** | ^0.5.21 | Source map debugging support     |
-
-### Code Quality & Formatting
-
-| Tool                  | Version | Purpose                           |
-| --------------------- | ------- | --------------------------------- |
-| **ESLint**            | ^9.18.0 | JavaScript linting & code quality |
-| **Prettier**          | ^3.4.2  | Code formatting consistency       |
-| **@eslint/js**        | ^9.18.0 | ESLint JavaScript rules           |
-| **typescript-eslint** | ^8.20.0 | TypeScript-specific ESLint rules  |
-
-### Testing Framework
-
-| Tool                | Version | Purpose                              |
-| ------------------- | ------- | ------------------------------------ |
-| **Jest**            | ^30.0.0 | Unit & integration test runner       |
-| **ts-jest**         | ^29.2.5 | Jest TypeScript preprocessor         |
-| **Supertest**       | ^7.0.0  | HTTP assertion library for e2e tests |
-| **@nestjs/testing** | ^11.0.1 | NestJS testing utilities             |
-
-### Type Definitions
-
-| Package              | Version | Purpose                     |
-| -------------------- | ------- | --------------------------- |
-| **@types/node**      | ^24.0.0 | Node.js type definitions    |
-| **@types/express**   | ^5.0.0  | Express.js type definitions |
-| **@types/jest**      | ^30.0.0 | Jest type definitions       |
-| **@types/supertest** | ^7.0.0  | Supertest type definitions  |
-
-### CLI & Code Generation
-
-| Tool                   | Version | Purpose                                 |
-| ---------------------- | ------- | --------------------------------------- |
-| **@nestjs/cli**        | ^11.0.0 | NestJS project scaffolding              |
-| **@nestjs/schematics** | ^11.0.0 | Schematic templates for code generation |
-
----
-
-## Architecture Overview
-
-### System Architecture Diagram
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                     HTTP Request                            │
-└─────────────────────────────┬───────────────────────────────┘
-                              │
-                    ┌─────────▼────────┐
-                    │   Express HTTP   │
-                    │     Server       │
-                    └─────────┬────────┘
-                              │
-                    ┌─────────▼──────────────┐
-                    │   NestJS Platform     │
-                    │   (HTTP Adapter)      │
-                    └─────────┬──────────────┘
-                              │
-        ┌─────────────────────┼─────────────────────┐
-        │                     │                     │
-   ┌────▼────┐         ┌──────▼───────┐    ┌──────▼──────┐
-   │ Guard   │         │ Interceptor  │    │  Middleware │
-   │ (Auth)  │         │ (Logging)    │    │ (CORS, etc) │
-   └────┬────┘         └──────┬───────┘    └──────┬──────┘
-        │                     │                    │
-        └─────────────────────┼────────────────────┘
-                              │
-                    ┌─────────▼──────────┐
-                    │   Pipe            │
-                    │ (Validation,      │
-                    │  Transform)       │
-                    └─────────┬──────────┘
-                              │
-                    ┌─────────▼──────────┐
-                    │  Controller        │
-                    │  Route Handler     │
-                    └─────────┬──────────┘
-                              │
-                    ┌─────────▼──────────┐
-                    │  Service Layer     │
-                    │  (Business Logic)  │
-                    └─────────┬──────────┘
-                              │
-                    ┌─────────▼──────────┐
-                    │ Repository/DAL    │
-                    │ (Data Access)      │
-                    └─────────┬──────────┘
-                              │
-                    ┌─────────▼──────────┐
-                    │  External Resources│
-                    │  (DB, API, Cache)  │
-                    └────────────────────┘
-```
-
-### Layered Architecture
-
-#### 1. **Presentation Layer** (HTTP Controllers)
-
-Controllers handle HTTP requests and delegate to services. They are responsible for:
-
-- Route mapping (`@Get()`, `@Post()`, etc.)
-- Request parameter extraction (`@Param()`, `@Query()`, `@Body()`)
-- Response formatting
-- Status code management
-
-**File**: [src/app.controller.ts](src/app.controller.ts)
+#### 1. **Middleware**
 
 ```typescript
-@Controller()
-export class AppController {
-  constructor(private readonly appService: AppService) {}
-
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
-  }
-
-  @Get('/hello')
-  sendHellotoUser(@Body('name') name: string): string {
-    return this.appService.sendHelloToUser(name);
-  }
-}
+// Express middleware pattern
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  next(); // Pass to next middleware
+});
 ```
 
-#### 2. **Business Logic Layer** (Services)
+#### 2. **Request/Response Cycle**
 
-Services encapsulate domain logic, calculations, and business rules. They are:
+```
+Incoming Request
+    ↓
+Middleware Stack
+    ↓
+Route Handler
+    ↓
+Business Logic
+    ↓
+Response Sent
+```
 
-- **Testable**: No HTTP dependencies, pure business logic
-- **Reusable**: Can be called from controllers, guards, interceptors
-- **Composable**: Can depend on other services
-
-**File**: [src/app.service.ts](src/app.service.ts)
+#### 3. **Route Handlers**
 
 ```typescript
-@Injectable()
-export class AppService {
-  getHello(): string {
-    return 'Hello World!';
-  }
-
-  sendHelloToUser(name: string): string {
-    return `Hello ${name}`;
-  }
-}
-```
-
-#### 3. **Infrastructure Layer** (Repository Pattern - Future)
-
-Abstracts data access from business logic. When implemented:
-
-```typescript
-@Injectable()
-export class UserRepository {
-  constructor(private db: Database) {}
-
-  async findById(id: string): Promise<User> {
-    return this.db.query('SELECT * FROM users WHERE id = ?', [id]);
-  }
-}
-```
-
-### Request Lifecycle
-
-```
-1. HTTP Request arrives at Express
-2. NestJS platform intercepts
-3. Global middleware executes (if configured)
-4. Route matching occurs
-5. Guards execute (@UseGuards decorator)
-6. Interceptors execute - before (logging, timing)
-7. Pipes execute (validation, transformation)
-8. Controller method executes
-9. Service layer executes business logic
-10. Response interceptors execute - after
-11. Exception filters catch errors
-12. HTTP Response sent to client
-```
-
-### Dependency Injection Container
-
-NestJS uses TypeScript decorators and reflection metadata to:
-
-1. **Scan** decorated classes at application startup
-2. **Resolve** dependency trees automatically
-3. **Inject** instances via constructor parameters
-4. **Manage** instance lifecycles (singleton, transient, request-scoped)
-
-**Example**:
-
-```typescript
-// Define injectable
-@Injectable()
-export class AppService {}
-
-// Inject automatically
-@Controller()
-export class AppController {
-  constructor(private readonly appService: AppService) {
-    // appService instance injected by NestJS DI container
-  }
-}
-```
-
-### Module System
-
-Modules organize code into cohesive units:
-
-```typescript
-@Module({
-  imports: [], // Dependencies on other modules
-  controllers: [AppController], // HTTP route handlers
-  providers: [AppService], // Injectable services/repositories
-  exports: [], // What other modules can use
-})
-export class AppModule {}
-```
-
-**Benefits**:
-
-- Encapsulation
-- Namespace organization
-- Lazy loading potential
-- Easy feature toggling
-
----
-
-## Project Structure
-
-```
-nestjs-fundamentals/
-├── src/                          # Source code directory
-│   ├── app.controller.ts        # Main route handler
-│   ├── app.controller.spec.ts   # Unit tests for controller
-│   ├── app.service.ts           # Business logic service
-│   ├── app.module.ts            # Root application module
-│   └── main.ts                  # Application entry point
-│
-├── test/                         # E2E tests
-│   ├── app.e2e-spec.ts          # End-to-end tests
-│   └── jest-e2e.json            # E2E Jest configuration
-│
-├── dist/                         # Compiled JavaScript (generated)
-│
-├── coverage/                     # Test coverage reports (generated)
-│
-├── node_modules/                # Dependencies (generated)
-│
-├── package.json                 # NPM dependencies & scripts
-├── package-lock.json            # Dependency lock file
-├── tsconfig.json                # TypeScript configuration
-├── tsconfig.build.json          # TypeScript build config
-├── nest-cli.json                # NestJS CLI configuration
-├── eslint.config.mjs            # ESLint configuration
-├── jest.config.json             # Jest test configuration
-└── README.md                    # This file
-```
-
-### Key Files Explained
-
-| File                                                     | Purpose                                          | Size     |
-| -------------------------------------------------------- | ------------------------------------------------ | -------- |
-| [src/main.ts](src/main.ts)                               | Application bootstrap, server initialization     | 6 lines  |
-| [src/app.module.ts](src/app.module.ts)                   | Root module definition, dependency configuration | 9 lines  |
-| [src/app.controller.ts](src/app.controller.ts)           | HTTP route handlers, request mapping             | 14 lines |
-| [src/app.service.ts](src/app.service.ts)                 | Business logic, core functionality               | 10 lines |
-| [src/app.controller.spec.ts](src/app.controller.spec.ts) | Unit tests                                       | 22 lines |
-| [test/app.e2e-spec.ts](test/app.e2e-spec.ts)             | Integration tests, end-to-end scenarios          | 26 lines |
-
-### Directory Purpose Breakdown
-
-**`/src`** - Source code
-
-- Contains all TypeScript business logic
-- Organized by features (when scaled: `/users`, `/products`, etc.)
-- Single-responsibility principle applied
-
-**`/test`** - End-to-end tests
-
-- Tests entire request/response cycles
-- Tests module integration
-- Tests database interactions (when added)
-
-**`/dist`** - Distribution build
-
-- Compiled JavaScript output
-- Generated from TypeScript via `npm run build`
-- Used in production
-
-**`/coverage`** - Test coverage metrics
-
-- Generated by `npm run test:cov`
-- HTML reports for coverage visualization
-
----
-
-## API Documentation
-
-### Endpoints Overview
-
-| Method | Endpoint | Purpose               | Status    |
-| ------ | -------- | --------------------- | --------- |
-| GET    | `/`      | Hello World message   | ✅ Active |
-| GET    | `/hello` | Personalized greeting | ✅ Active |
-
-### Endpoint Details
-
-#### 1. Hello World
-
-**Request**
-
-```http
-GET / HTTP/1.1
-Host: localhost:3000
-```
-
-**Response** (Status: 200 OK)
-
-```
-Hello World!
-```
-
-**cURL Example**
-
-```bash
-curl http://localhost:3000
-```
-
-**Use Case**: Health check, service verification, minimal response testing
-
----
-
-#### 2. Personalized Greeting
-
-**Request**
-
-```http
-GET /hello HTTP/1.1
-Host: localhost:3000
-Content-Type: application/json
-
-{
-  "name": "John Doe"
-}
-```
-
-**Response** (Status: 200 OK)
-
-```
-Hello John Doe
-```
-
-**cURL Example**
-
-```bash
-curl -X GET http://localhost:3000/hello \
-  -H "Content-Type: application/json" \
-  -d '{"name": "John Doe"}'
-```
-
-**Parameters**
-
-| Parameter | Type   | Location | Required | Example | Description                     |
-| --------- | ------ | -------- | -------- | ------- | ------------------------------- |
-| name      | string | Body     | Yes      | "John"  | User's name for personalization |
-
-**Error Cases**
-
-| Status | Scenario               | Example Response      |
-| ------ | ---------------------- | --------------------- |
-| 400    | Missing name parameter | `Hello undefined`     |
-| 500    | Server error           | Internal Server Error |
-
-**Improvements for Production**:
-
-- Add validation: require non-empty name
-- Return JSON instead of plain text for consistency
-- Add descriptive error responses
-- Include content-type headers
-
----
-
-## Design Patterns
-
-### 1. **Dependency Injection (DI) Pattern**
-
-**Location**: Entire application  
-**Implementation**: NestJS DI Container
-
-**How It's Used**:
-
-```typescript
-// Service defined as injectable
-@Injectable()
-export class AppService {
-  // ...
-}
-
-// Injected into controller
-@Controller()
-export class AppController {
-  constructor(private readonly appService: AppService) {
-    // NestJS automatically instantiates and injects
-  }
-}
-```
-
-**Benefits**:
-
-- ✅ Loose coupling between components
-- ✅ Easy to mock dependencies for testing
-- ✅ Centralized instance management
-- ✅ Singleton pattern automatic
-
-**Limitations**:
-
-- ❌ Circular dependency risks (mitigated by NestJS detection)
-- ❌ Startup time increases with many dependencies
-- ❌ Learning curve for newcomers
-
-**When to Use**:
-
-- ✅ Services that depend on other services
-- ✅ Services with external dependencies (DB, HTTP clients)
-- ✅ Every provider in NestJS (standard practice)
-
----
-
-### 2. **Service Layer Pattern**
-
-**Location**: [src/app.service.ts](src/app.service.ts)
-
-**How It's Used**:
-
-Controllers delegate business logic to services:
-
-```typescript
-@Controller()
-export class AppController {
-  constructor(private readonly appService: AppService) {}
-
-  @Get()
-  getHello(): string {
-    // Delegation to service layer
-    return this.appService.getHello();
-  }
-}
-```
-
-**Benefits**:
-
-- ✅ Separation of concerns (HTTP vs business logic)
-- ✅ Business logic testable without HTTP framework
-- ✅ Logic reusable across multiple endpoints
-- ✅ Easier to reason about code
-
-**When to Use**:
-
-- ✅ Any business logic computation
-- ✅ Data transformation
-- ✅ External API calls
-- ✅ Domain operations
-
----
-
-### 3. **Controller Pattern**
-
-**Location**: [src/app.controller.ts](src/app.controller.ts)
-
-**How It's Used**:
-
-```typescript
-@Controller() // Routes: GET /
-export class AppController {
-  @Get() // HTTP GET method
-  getHello(): string {}
-
-  @Get('/hello') // Routes: GET /hello
-  sendHellotoUser(): string {}
-}
-```
-
-**Benefits**:
-
-- ✅ Declarative route definition
-- ✅ Parameter extraction automatic
-- ✅ Type-safe endpoint handling
-- ✅ Clear URL → method mapping
-
-**When to Use**:
-
-- ✅ Mapping HTTP endpoints to handlers
-- ✅ Request/response processing
-- ✅ Status code management
-
----
-
-### 4. **Module Pattern**
-
-**Location**: [src/app.module.ts](src/app.module.ts)
-
-**How It's Used**:
-
-```typescript
-@Module({
-  imports: [], // Other modules
-  controllers: [AppController], // Route handlers
-  providers: [AppService], // Injectable services
-  exports: [], // Public API
-})
-export class AppModule {}
-```
-
-**Benefits**:
-
-- ✅ Feature encapsulation
-- ✅ Code organization at scale
-- ✅ Shared vs private provider control
-- ✅ Lazy loading support
-
-**When to Use**:
-
-- ✅ Grouping related features (Users, Products, Orders)
-- ✅ Creating reusable feature libraries
-- ✅ Separating core vs optional features
-
----
-
-### 5. **Decorator Pattern** (Implicit via TypeScript/NestJS)
-
-**Decorators Used**:
-
-| Decorator                 | Purpose                    | Example                                             |
-| ------------------------- | -------------------------- | --------------------------------------------------- |
-| `@Module()`               | Define module              | `@Module({ controllers: [...], providers: [...] })` |
-| `@Controller()`           | Define controller route    | `@Controller('/users')`                             |
-| `@Injectable()`           | Mark as injectable service | `@Injectable()`                                     |
-| `@Get()`, `@Post()`, etc. | HTTP method mapping        | `@Get('/hello')`                                    |
-| `@Param()`                | Extract route parameter    | `@Param('id')`                                      |
-| `@Query()`                | Extract query string       | `@Query('page')`                                    |
-| `@Body()`                 | Extract request body       | `@Body()`                                           |
-
-**Benefits**:
-
-- ✅ Declarative, readable syntax
-- ✅ Metadata attached to classes/methods
-- ✅ Framework uses metadata for routing/injection
-
----
-
-### 6. **Factory Pattern** (Via NestJS.create())
-
-**Location**: [src/main.ts](src/main.ts)
-
-**How It's Used**:
-
-```typescript
-const app = await NestFactory.create(AppModule);
-```
-
-**Benefits**:
-
-- ✅ Encapsulates complex object creation
-- ✅ Can configure before returning
-- ✅ Testable application instance
-
----
-
-### 7. **Singleton Pattern** (Default DI Scope)
-
-**How It's Used**:
-
-```typescript
-@Injectable()
-export class AppService {
-  // Single instance shared across application
-}
-```
-
-**Benefits**:
-
-- ✅ Memory efficient
-- ✅ Shared state across requests
-- ✅ Default for stateless services
-
-**When Appropriate**:
-
-- ✅ Stateless services
-- ✅ Shared configuration
-- ⚠️ Avoid for request-scoped data
-
----
-
-### Pattern Summary Table
-
-| Pattern       | Location       | Use Case               | Difficulty |
-| ------------- | -------------- | ---------------------- | ---------- |
-| DI            | Global         | Dependency management  | Medium     |
-| Service Layer | AppService     | Business logic         | Easy       |
-| Controller    | AppController  | Route handling         | Easy       |
-| Module        | AppModule      | Feature organization   | Medium     |
-| Decorator     | Framework-wide | Metadata/configuration | Easy       |
-| Factory       | NestFactory    | Object creation        | Easy       |
-| Singleton     | DI Container   | Shared instances       | Medium     |
-
----
-
-## Security Architecture
-
-### Current Security Posture
-
-This is a **proof-of-concept** implementation. Production deployment requires hardening:
-
-### 1. Input Validation & Sanitization
-
-**Current Status**: ⚠️ Not implemented
-
-**Recommendation**:
-
-```typescript
-// Install: npm install class-validator class-transformer
-
-import { IsString, IsNotEmpty } from 'class-validator';
-
-export class GreetingDto {
-  @IsString()
-  @IsNotEmpty()
-  name: string;
-}
-
-@Controller()
-export class AppController {
-  @Get('/hello')
-  sendHellotoUser(@Body() dto: GreetingDto): string {
-    // Validated input before processing
-    return this.appService.sendHelloToUser(dto.name);
-  }
-}
-```
-
-**Risks Mitigated**:
-
-- SQL Injection (with database)
-- Script injection (XSS)
-- Invalid data formats
-- Type confusion attacks
-
----
-
-### 2. Authentication & Authorization
-
-**Current Status**: ❌ Not implemented
-
-**Recommendation**:
-
-```bash
-npm install @nestjs/jwt @nestjs/passport passport passport-jwt
-```
-
-```typescript
-@UseGuards(JwtAuthGuard)
-@Get('/protected')
-protectedRoute() {
-  return 'Authorized access';
-}
-```
-
-**Implementation**:
-
-- JWT token-based authentication
-- Request-scoped guards
-- Role-based access control (RBAC)
-
----
-
-### 3. CORS Configuration
-
-**Current Status**: ⚠️ Default open
-
-**Recommendation**:
-
-```typescript
-// src/main.ts
-const app = await NestFactory.create(AppModule);
-
-app.enableCors({
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || 'http://localhost:3000',
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+// Express style
+app.get('/', (req, res) => {
+  res.send('Hello World');
 });
 
-await app.listen(process.env.PORT ?? 3000);
+// NestJS wrapper
+@Get()
+getHello(): string {
+  return 'Hello World';
+}
+```
+
+#### 4. **Error Handling**
+
+```typescript
+// Express error handler
+app.use((err, req, res, next) => {
+  res.status(500).json({ error: err.message });
+});
+
+// NestJS exception filters
+@Catch(HttpException)
+export class HttpExceptionFilter {}
+```
+
+### Why NestJS Over Express
+
+| Feature           | Express | NestJS   |
+| ----------------- | ------- | -------- |
+| Type Safety       | ❌      | ✅       |
+| Structure         | ❌      | ✅       |
+| DI Container      | ❌      | ✅       |
+| Decorators        | ❌      | ✅       |
+| Modularity        | ⚠️      | ✅       |
+| Testing Support   | ⚠️      | ✅       |
+| Learning Curve    | Easy    | Moderate |
+
+---
+
+## Routing Architecture
+
+### Route Definition
+
+```typescript
+@Controller('/api/v1')  // Base path
+export class AppController {
+  @Get()              // GET /api/v1
+  getRoot() {}
+
+  @Get('/hello')      // GET /api/v1/hello
+  getHello() {}
+
+  @Get(':id')         // GET /api/v1/:id (path parameter)
+  getById(@Param('id') id: string) {}
+
+  @Get('/search')     // GET /api/v1/search?query=...
+  search(@Query('query') query: string) {}
+
+  @Post()             // POST /api/v1
+  create(@Body() data: any) {}
+
+  @Put(':id')         // PUT /api/v1/:id
+  update(@Param('id') id: string, @Body() data: any) {}
+
+  @Delete(':id')      // DELETE /api/v1/:id
+  delete(@Param('id') id: string) {}
+
+  @Patch(':id')       // PATCH /api/v1/:id
+  patch(@Param('id') id: string, @Body() data: any) {}
+}
+```
+
+### Route Priorities
+
+Routes are matched in order. More specific routes should be defined first:
+
+```typescript
+@Get('/users/me')       // Specific - define first
+getMyProfile() {}
+
+@Get('/users/:id')      // General - define second
+getUser(@Param('id') id: string) {}
+```
+
+### Parameter Extraction
+
+```typescript
+@Get(':id')
+getById(
+  @Param('id') id: string,           // URL parameter
+  @Query('filter') filter: string,   // Query string
+  @Body() body: CreateDto,           // Request body
+  @Headers('authorization') auth: string, // Headers
+  @Request() req: Request            // Full request object
+) {}
 ```
 
 ---
 
-### 4. Rate Limiting
+## Middleware Deep Dive
 
-**Current Status**: ❌ Not implemented
+### What is Middleware
 
-**Recommendation**:
+Middleware is code that runs before route handlers. It can:
 
-```bash
-npm install @nestjs/throttler
+- Modify request/response
+- End the request
+- Pass to next middleware
+
+### Middleware Execution Order
+
+```
+Request
+   ↓
+[1] Global Middleware
+   ↓
+[2] Module-level Middleware
+   ↓
+[3] Controller-level Middleware
+   ↓
+[4] Route Handler
 ```
 
+### Built-in Middleware
+
 ```typescript
-@UseGuards(ThrottlerGuard)
+import { NestMiddleware } from '@nestjs/common';
+
+export class LoggingMiddleware implements NestMiddleware {
+  use(req: Request, res: Response, next: NextFunction) {
+    console.log(`[${Date.now()}] ${req.method} ${req.url}`);
+    next();
+  }
+}
+
+@Module({})
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(LoggingMiddleware)
+      .forRoutes('*'); // Apply to all routes
+  }
+}
+```
+
+### Common Middleware Patterns
+
+```typescript
+// 1. CORS Middleware
+app.enableCors({
+  origin: 'http://localhost:3000',
+});
+
+// 2. Body Parser
+app.use(express.json());
+app.use(express.urlencoded());
+
+// 3. Compression
+app.use(compression());
+
+// 4. Request Timing
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    console.log(`Request took ${Date.now() - start}ms`);
+  });
+  next();
+});
+
+// 5. Authentication
+app.use((req, res, next) => {
+  const token = req.headers.authorization;
+  if (!token) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  req.user = verify(token);
+  next();
+});
+```
+
+---
+
+## Request & Response Handling
+
+### Request Object
+
+```typescript
 @Get()
-getHello() {
-  return this.appService.getHello();
+handleRequest(@Request() req) {
+  // Access request properties
+  console.log(req.method);              // 'GET'
+  console.log(req.url);                 // '/api/users'
+  console.log(req.headers);             // { authorization: '...' }
+  console.log(req.query);               // { page: '1' }
+  console.log(req.body);                // POST/PUT body
+  console.log(req.params);              // Route params
+}
+```
+
+### Response Object
+
+```typescript
+@Get()
+handleResponse(@Response() res) {
+  res.status(200);              // Status code
+  res.setHeader('X-Custom', 'value');  // Headers
+  res.json({ data: 'value' });  // Send JSON
+  res.send('text');             // Send text
+  res.redirect('/other');       // Redirect
+  res.download('file.pdf');     // Download file
+  res.sendFile('file.html');    // Send file
+}
+```
+
+### Response Decorators
+
+```typescript
+@Get()
+@HttpCode(200)           // Set status code
+@Header('Cache-Control', 'none')  // Add header
+getHello(): string {
+  return 'Hello World';
+}
+
+// Automatic JSON serialization
+@Get()
+getJson() {
+  return { message: 'Hello' };
+  // Automatically sent as JSON
+}
+
+// Streaming responses
+@Get('file')
+getFile(@Response() res) {
+  const file = fs.createReadStream('large-file.pdf');
+  file.pipe(res);
+}
+```
+
+### Content Negotiation
+
+```typescript
+// Respond with different formats
+@Get()
+@Header('Content-Type', 'application/json')
+getJson() {
+  return { data: 'json' };
+}
+
+@Get()
+@Header('Content-Type', 'text/plain')
+getText() {
+  return 'plain text';
+}
+
+@Get()
+@Header('Content-Type', 'text/html')
+getHtml() {
+  return '<h1>HTML</h1>';
 }
 ```
 
 ---
 
-### 5. Environment Variable Handling
+## Environment Configuration
 
-**Current Implementation**:
+### Using Environment Variables
+
+```typescript
+// Development (.env.local)
+PORT=3000
+NODE_ENV=development
+LOG_LEVEL=debug
+DATABASE_URL=postgresql://localhost/nestjs_dev
+JWT_SECRET=dev-secret
+
+// Production (.env.production)
+PORT=8080
+NODE_ENV=production
+LOG_LEVEL=info
+DATABASE_URL=postgresql://prod.db/nestjs_prod
+JWT_SECRET=<secure-secret>
+```
+
+### Load Environment Variables
 
 ```typescript
 // src/main.ts
-const port = process.env.PORT ?? 3000;
+import * as dotenv from 'dotenv';
+
+dotenv.config();
+
+const port = process.env.PORT || 3000;
+const env = process.env.NODE_ENV || 'development';
 ```
 
-**Production Recommendation**:
+### Validation
 
 ```bash
 npm install @nestjs/config joi
 ```
 
 ```typescript
-// src/config/env.validation.ts
+// src/env.ts
 import { plainToClass } from 'class-transformer';
-import { IsNumber, validateSync } from 'class-validator';
+import { IsNumber, IsString, validate } from 'class-validator';
 
 export class EnvironmentVariables {
   @IsNumber()
   PORT: number = 3000;
+
+  @IsString()
+  NODE_ENV: 'development' | 'production' = 'development';
+
+  @IsString()
+  JWT_SECRET: string;
 }
 
-export function validate(config: Record<string, unknown>) {
-  const validatedConfig = plainToClass(EnvironmentVariables, config, {
-    enableImplicitConversion: true,
-  });
+export async function validateEnv(config: Record<string, any>) {
+  const validatedConfig = plainToClass(EnvironmentVariables, config);
+  const errors = await validate(validatedConfig);
 
-  const errors = validateSync(validatedConfig);
   if (errors.length > 0) {
-    throw new Error(errors.toString());
+    throw new Error(`Environment validation failed: ${errors}`);
   }
 
   return validatedConfig;
@@ -891,660 +478,416 @@ export function validate(config: Record<string, unknown>) {
 
 ---
 
-### 6. HTTPS/TLS
+## MVC Architecture
 
-**Current Status**: ❌ Not configured
+### What is MVC
 
-**Production Setup**:
+MVC separates applications into three layers:
+
+- **Model**: Data and business logic
+- **View**: User interface (front-end in our case)
+- **Controller**: Request handling
+
+### MVC in NestJS
 
 ```typescript
-import * as fs from 'fs';
-import * as https from 'https';
+// Model Layer
+@Entity()
+export class User {
+  @PrimaryGeneratedColumn()
+  id: number;
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  @Column()
+  name: string;
 
-  const httpsOptions = {
-    key: fs.readFileSync('/path/to/key.pem'),
-    cert: fs.readFileSync('/path/to/cert.pem'),
-  };
+  @Column()
+  email: string;
+}
 
-  await app.listen(process.env.PORT ?? 3000);
+// Business Logic (Service)
+@Injectable()
+export class UserService {
+  async getUser(id: number): Promise<User> {
+    return this.userRepository.findOne({ where: { id } });
+  }
+}
 
-  // Create HTTPS server
-  https.createServer(httpsOptions, app.getHttpServer()).listen(443);
+// View/Controller Layer
+@Controller('/users')
+export class UserController {
+  constructor(private userService: UserService) {}
+
+  @Get(':id')
+  async getUser(@Param('id', ParseIntPipe) id: number) {
+    return this.userService.getUser(id);
+  }
 }
 ```
 
+### Benefits
+
+- **Separation of Concerns**: Each layer has single responsibility
+- **Testability**: Each layer can be tested independently
+- **Reusability**: Services can be used in multiple controllers
+- **Maintainability**: Changes to one layer don't affect others
+
 ---
 
-### 7. Logging & Monitoring
+## Production Folder Structure
 
-**Current Status**: ⚠️ Minimal
+```
+nestjs-fundamentals/
+├── src/
+│   ├── common/                    # Shared utilities
+│   │   ├── decorators/           # Custom decorators
+│   │   ├── guards/               # Authorization guards
+│   │   ├── filters/              # Exception filters
+│   │   ├── interceptors/         # Interceptors
+│   │   └── pipes/                # Validation pipes
+│   │
+│   ├── config/                   # Configuration
+│   │   ├── app.config.ts
+│   │   ├── database.config.ts
+│   │   └── env.validation.ts
+│   │
+│   ├── modules/                  # Feature modules
+│   │   ├── users/
+│   │   │   ├── users.controller.ts
+│   │   │   ├── users.service.ts
+│   │   │   ├── users.module.ts
+│   │   │   ├── entities/
+│   │   │   └── dto/
+│   │   ├── products/
+│   │   ├── orders/
+│   │   └── auth/
+│   │
+│   ├── database/                 # Database setup
+│   │   ├── migrations/
+│   │   ├── seeders/
+│   │   └── data-source.ts
+│   │
+│   ├── app.module.ts
+│   └── main.ts
+│
+├── test/
+│   ├── unit/
+│   ├── integration/
+│   └── e2e/
+│
+├── docker/
+│   ├── Dockerfile
+│   └── docker-compose.yml
+│
+├── scripts/
+│   ├── seed-db.ts
+│   └── migrate.ts
+│
+└── .github/
+    └── workflows/
+        └── ci-cd.yml
+```
 
-**Recommendation**:
+---
+
+## Validation Strategy
+
+### Input Validation
 
 ```bash
-npm install winston winston-daily-rotate-file
+npm install class-validator class-transformer
 ```
 
+#### DTOs (Data Transfer Objects)
+
 ```typescript
-// Structured logging for security audit trails
-this.logger.log({
-  event: 'UNAUTHORIZED_ACCESS',
-  user: userId,
-  endpoint: request.url,
-  timestamp: new Date(),
-});
+import {
+  IsString,
+  IsEmail,
+  IsNotEmpty,
+  MinLength,
+  MaxLength,
+  Matches,
+  ValidateNested,
+} from 'class-validator';
+import { Type } from 'class-transformer';
+
+export class CreateUserDto {
+  @IsString({ message: 'Name must be a string' })
+  @IsNotEmpty({ message: 'Name is required' })
+  @MinLength(2, { message: 'Name must be at least 2 characters' })
+  @MaxLength(50, { message: 'Name cannot exceed 50 characters' })
+  name: string;
+
+  @IsEmail({}, { message: 'Invalid email address' })
+  @IsNotEmpty()
+  email: string;
+
+  @IsString()
+  @Matches(/^[A-Z][a-z]+$/, {
+    message: 'Name must start with capital letter',
+  })
+  password: string;
+}
+
+// Nested validation
+export class CreateOrderDto {
+  @ValidateNested()
+  @Type(() => CreateUserDto)
+  user: CreateUserDto;
+}
 ```
 
----
-
-### 8. SQL Injection Prevention (Database Layer)
-
-**When implementing database**:
+#### Global Validation Pipe
 
 ```typescript
-// ✅ SAFE - Parameterized queries
-const user = await this.db.query('SELECT * FROM users WHERE id = ?', [userId]);
+// src/main.ts
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
 
-// ❌ UNSAFE - String concatenation
-const user = await this.db.query(`SELECT * FROM users WHERE id = '${userId}'`);
-```
-
----
-
-### Security Checklist
-
-- [ ] Input validation on all endpoints
-- [ ] Authentication (JWT/OAuth2)
-- [ ] Authorization (RBAC)
-- [ ] CORS properly configured
-- [ ] Rate limiting
-- [ ] Environment variable validation
-- [ ] HTTPS/TLS in production
-- [ ] Structured logging
-- [ ] Error handling (don't expose internals)
-- [ ] Dependency scanning (npm audit)
-- [ ] Database parameterized queries
-- [ ] OWASP Top 10 compliance
-
----
-
-## Performance Considerations
-
-### Current Architecture Analysis
-
-#### Scalability Assessment: ⚠️ Moderate
-
-**Horizontal Scaling**: ✅ Ready
-
-- Stateless service design
-- No in-memory sessions
-- Can deploy multiple instances
-
-**Vertical Scaling**: ✅ Limited gains after optimization
-
-- Single-threaded Node.js (uses async I/O)
-- CPU-bound operations limited by GIL equivalent
-
-#### Potential Bottlenecks
-
-| Bottleneck       | Current State | Risk | Mitigation                      |
-| ---------------- | ------------- | ---- | ------------------------------- |
-| Database queries | Not present   | N/A  | Add database connection pooling |
-| Memory usage     | Minimal       | Low  | Monitor with 100K+ concurrent   |
-| CPU usage        | Minimal       | Low  | Profile with load testing       |
-| I/O operations   | Not present   | N/A  | Implement async operations      |
-
-### Performance Optimization Roadmap
-
-#### 1. **Caching Strategy** (Not Implemented)
-
-```typescript
-import { CacheModule } from '@nestjs/cache-manager';
-
-@Module({
-  imports: [
-    CacheModule.register({
-      ttl: 60000, // 60 seconds
-      max: 100, // Max 100 entries
+  // Enable validation on all endpoints
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,            // Strip unknown properties
+      forbidNonWhitelisted: true, // Reject unknown properties
+      transform: true,            // Auto-transform payloads
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
     }),
-  ],
-  controllers: [AppController],
-  providers: [AppService],
-})
-export class AppModule {}
+  );
+
+  await app.listen(process.env.PORT || 3000);
+}
 ```
 
-**Expected Impact**: 10-100x faster repeated requests
-
----
-
-#### 2. **Database Query Optimization** (When DB Added)
+#### Controller Usage
 
 ```typescript
-// Enable query logging in development
-const dataSource = new DataSource({
-  logging: 'all',
-  type: 'postgres',
-  host: 'localhost',
-  port: 5432,
-  database: 'nestjs_db',
-});
+@Controller('/users')
+export class UserController {
+  @Post()
+  create(@Body() createUserDto: CreateUserDto) {
+    // Automatically validated before reaching handler
+    return this.userService.create(createUserDto);
+  }
+}
+```
 
-// Add indexes
-@Entity()
-export class User {
-  @PrimaryColumn()
-  id: string;
+#### Custom Validators
 
-  @Column()
-  @Index() // Add index for frequently queried fields
+```typescript
+import { ValidatorConstraint, ValidatorConstraintInterface } from 'class-validator';
+
+@ValidatorConstraint({ name: 'isUniqueEmail', async: true })
+export class IsUniqueEmailConstraint implements ValidatorConstraintInterface {
+  constructor(private userService: UserService) {}
+
+  async validate(value: string) {
+    const user = await this.userService.findByEmail(value);
+    return !user; // Valid if no user found
+  }
+
+  defaultMessage() {
+    return 'Email already exists';
+  }
+}
+
+// Use in DTO
+export class CreateUserDto {
+  @Validate(IsUniqueEmailConstraint)
   email: string;
 }
 ```
 
-**Expected Impact**: 10-100x for indexed queries
-
 ---
 
-#### 3. **Compression** (Not Configured)
+## Authentication & Authorization
 
-```typescript
-import * as compression from 'compression';
-
-app.use(compression());
-```
-
-**Expected Impact**: 40-80% reduction in response size
-
----
-
-#### 4. **Connection Pooling** (When DB Added)
-
-```typescript
-// TypeORM with pooling
-{
-  type: 'postgres',
-  host: 'localhost',
-  port: 5432,
-  username: 'user',
-  password: 'password',
-  database: 'nestjs_db',
-  poolSize: 10,
-  maxConnections: 20,
-}
-```
-
-**Expected Impact**: 2-5x improvement under load
-
----
-
-#### 5. **Async Request Processing**
-
-```typescript
-// Current: Synchronous
-@Post('/process')
-processData(@Body() data: any) {
-  return this.service.heavyComputation(data);
-}
-
-// Recommended: Queue-based async
-@Post('/process')
-async processDataAsync(@Body() data: any) {
-  await this.queue.add('process', data);
-  return { status: 'processing', id: taskId };
-}
-```
-
-**Expected Impact**: Non-blocking, handles spikes better
-
----
-
-#### 6. **Load Testing Recommendation**
+### JWT Authentication
 
 ```bash
-# Using autocannon
-npx autocannon -c 100 -d 30 http://localhost:3000
-
-# Using Apache Bench
-ab -n 10000 -c 100 http://localhost:3000/
+npm install @nestjs/jwt @nestjs/passport passport passport-jwt
+npm install --save-dev @types/passport-jwt
 ```
 
-**Baseline Expected Performance**:
-
-- Requests/sec: 5,000-15,000 (single instance)
-- Response time: 1-5ms (p50)
-- Memory: ~100-150 MB
-
----
-
-### Scalability Recommendations for 100K RPS
-
-1. **Microservices**: Split by domain
-2. **Message Queue**: RabbitMQ, Kafka for async operations
-3. **Load Balancer**: nginx, HAProxy
-4. **Cache Layer**: Redis for hot data
-5. **Database Sharding**: Distribute data
-6. **CDN**: Static content delivery
-7. **API Gateway**: Request aggregation, rate limiting
-8. **Monitoring**: Prometheus, Grafana, ELK stack
-
----
-
-## Testing Strategy
-
-### Current Test Coverage
-
-| Test Type   | Status         | Location                                                 | Coverage           |
-| ----------- | -------------- | -------------------------------------------------------- | ------------------ |
-| Unit Tests  | ✅ Implemented | [src/app.controller.spec.ts](src/app.controller.spec.ts) | Single method      |
-| E2E Tests   | ✅ Implemented | [test/app.e2e-spec.ts](test/app.e2e-spec.ts)             | Root endpoint      |
-| Integration | ⚠️ Partial     | Included in E2E                                          | Module integration |
-
-### Running Tests
-
-```bash
-# Run all unit tests
-npm test
-
-# Watch mode (re-run on file changes)
-npm run test:watch
-
-# Coverage report
-npm run test:cov
-
-# E2E tests
-npm run test:e2e
-
-# Debug tests
-npm run test:debug
-```
-
-### Unit Tests: Best Practices
-
-**File**: [src/app.controller.spec.ts](src/app.controller.spec.ts)
+#### 1. Auth Module
 
 ```typescript
-describe('AppController', () => {
-  let appController: AppController;
+// src/auth/auth.module.ts
+import { Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
+import { AuthService } from './auth.service';
+import { JwtStrategy } from './jwt.strategy';
 
-  beforeEach(async () => {
-    const app: TestingModule = await Test.createTestingModule({
-      controllers: [AppController],
-      providers: [AppService],
-    }).compile();
+@Module({
+  imports: [
+    PassportModule,
+    JwtModule.register({
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: '24h' },
+    }),
+  ],
+  providers: [AuthService, JwtStrategy],
+  exports: [AuthService],
+})
+export class AuthModule {}
+```
 
-    appController = app.get<AppController>(AppController);
-  });
+#### 2. Auth Service
 
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+```typescript
+// src/auth/auth.service.ts
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+
+@Injectable()
+export class AuthService {
+  constructor(private jwtService: JwtService) {}
+
+  async validateUser(email: string, password: string) {
+    // Check credentials
+    const user = await this.userService.findByEmail(email);
+
+    if (user && (await this.comparePasswords(password, user.password))) {
+      const { password, ...result } = user;
+      return result;
+    }
+
+    return null;
+  }
+
+  async generateToken(user: any) {
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      roles: user.roles,
+    };
+
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
+  }
+
+  async validateToken(token: string) {
+    try {
+      return this.jwtService.verify(token);
+    } catch (error) {
+      throw new UnauthorizedException('Invalid token');
+    }
+  }
+
+  private async comparePasswords(
+    plainPassword: string,
+    hashedPassword: string,
+  ): Promise<boolean> {
+    // Use bcrypt in production
+    const bcrypt = require('bcrypt');
+    return bcrypt.compare(plainPassword, hashedPassword);
+  }
+}
+```
+
+#### 3. JWT Strategy
+
+```typescript
+// src/auth/jwt.strategy.ts
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
+import { ExtractJwt, Strategy } from 'passport-jwt';
+
+@Injectable()
+export class JwtStrategy extends PassportStrategy(Strategy) {
+  constructor() {
+    super({
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ignoreExpiration: false,
+      secretOrKey: process.env.JWT_SECRET,
     });
-  });
-});
+  }
+
+  async validate(payload: any) {
+    if (!payload.sub) {
+      throw new UnauthorizedException();
+    }
+
+    return { id: payload.sub, email: payload.email, roles: payload.roles };
+  }
+}
 ```
 
-**Key Takeaways**:
-
-- ✅ Isolated unit tests (no HTTP layer)
-- ✅ Mock dependencies where needed
-- ✅ Test one method behavior
-
----
-
-### E2E Tests: Best Practices
-
-**File**: [test/app.e2e-spec.ts](test/app.e2e-spec.ts)
+#### 4. Auth Guard
 
 ```typescript
-describe('AppController (e2e)', () => {
-  let app: INestApplication<App>;
+// src/auth/jwt-auth.guard.ts
+import { Injectable } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
-  beforeEach(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-
-    app = moduleFixture.createNestApplication();
-    await app.init();
-  });
-
-  it('/ (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!');
-  });
-
-  afterEach(async () => {
-    await app.close();
-  });
-});
+@Injectable()
+export class JwtAuthGuard extends AuthGuard('jwt') {}
 ```
 
-**Key Takeaways**:
-
-- ✅ Tests real HTTP endpoints
-- ✅ Tests module integration
-- ✅ Cleanup resources
-
----
-
-### Test Coverage Targets
-
-| Level      | Target | Current | Action            |
-| ---------- | ------ | ------- | ----------------- |
-| Statements | 80%+   | ~70%    | Add service tests |
-| Branches   | 75%+   | ~60%    | Test error cases  |
-| Functions  | 80%+   | ~75%    | Test all methods  |
-| Lines      | 80%+   | ~70%    | Remove dead code  |
-
----
-
-### Recommended Test Expansion
+#### 5. Protected Routes
 
 ```typescript
-// Test with invalid input
-describe('AppService with validation', () => {
-  it('should throw on empty name', () => {
-    expect(() => service.sendHelloToUser('')).toThrow('Name cannot be empty');
-  });
-});
-
-// Test with database mocking
-describe('UserService', () => {
-  it('should call repository with correct ID', async () => {
-    const mockUser = { id: '1', name: 'John' };
-    jest.spyOn(repository, 'findById').mockResolvedValue(mockUser);
-
-    const result = await service.getUser('1');
-
-    expect(result).toEqual(mockUser);
-    expect(repository.findById).toHaveBeenCalledWith('1');
-  });
-});
-
-// Test error handling
-describe('Error scenarios', () => {
-  it('should return 404 when user not found', async () => {
-    jest.spyOn(repository, 'findById').mockResolvedValue(null);
-
-    await expect(service.getUser('invalid')).rejects.toThrow('User not found');
-  });
-});
+// src/app.controller.ts
+@UseGuards(JwtAuthGuard)
+@Get('/protected')
+getProtected(@Request() req) {
+  return `Hello ${req.user.email}, your ID is ${req.user.id}`;
+}
 ```
 
----
-
-## Development & Deployment
-
-### Local Development Setup
-
-#### 1. Prerequisites
-
-```bash
-# Install Node.js (18+)
-node --version  # v18.x or higher
-
-# Install npm (9+)
-npm --version   # v9.x or higher
-```
-
-#### 2. Development Server
-
-```bash
-# Install dependencies
-npm install
-
-# Start with hot-reload (watches file changes)
-npm run start:dev
-
-# Output:
-# [Nest] 12345 - 01/20/2024 10:30:00 AM   LOG [NestFactory] Starting Nest application...
-# [Nest] 12345 - 01/20/2024 10:30:01 AM   LOG [InstanceLoader] AppModule dependencies initialized +45ms
-# [Nest] 12345 - 01/20/2024 10:30:01 AM   LOG [RoutesResolver] AppController {...}
-# [Nest] 12345 - 01/20/2024 10:30:01 AM   LOG [RouterExplorer] Mapped {/, GET} route
-# [Nest] 12345 - 01/20/2024 10:30:01 AM   LOG [RouterExplorer] Mapped {/hello, GET} route
-# [Nest] 12345 - 01/20/2024 10:30:01 AM   LOG [NestApplication] Nest application successfully started
-```
-
-#### 3. Debugging
-
-```bash
-# Debug mode with inspector
-npm run start:debug
-
-# Open chrome://inspect in Chrome DevTools
-# Click "inspect" on the process
-```
-
-#### 4. Code Quality
-
-```bash
-# Format code with Prettier
-npm run format
-
-# Lint and fix issues
-npm run lint
-
-# Check before committing
-npm run lint && npm run format && npm test
-```
-
----
-
-### Docker Deployment
-
-#### Dockerfile
-
-```dockerfile
-# Build stage
-FROM node:18-alpine AS builder
-
-WORKDIR /app
-
-COPY package*.json ./
-RUN npm ci
-
-COPY . .
-RUN npm run build
-
-# Production stage
-FROM node:18-alpine
-
-WORKDIR /app
-
-COPY package*.json ./
-RUN npm ci --omit=dev
-
-COPY --from=builder /app/dist ./dist
-
-EXPOSE 3000
-
-CMD ["node", "dist/main.js"]
-```
-
-#### Build and Run
-
-```bash
-# Build Docker image
-docker build -t nestjs-fundamentals:latest .
-
-# Run container
-docker run -p 3000:3000 \
-  -e PORT=3000 \
-  nestjs-fundamentals:latest
-
-# With environment variables
-docker run -p 3000:3000 \
-  -e PORT=3000 \
-  -e NODE_ENV=production \
-  nestjs-fundamentals:latest
-```
-
-#### Docker Compose (Multi-container)
-
-```yaml
-# docker-compose.yml
-version: '3.8'
-
-services:
-  app:
-    build: .
-    ports:
-      - '3000:3000'
-    environment:
-      PORT: 3000
-      NODE_ENV: production
-    depends_on:
-      - postgres
-
-  postgres:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_DB: nestjs_db
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-    ports:
-      - '5432:5432'
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-volumes:
-  postgres_data:
-```
-
-```bash
-docker-compose up -d
-```
-
----
-
-### Environment Variables
-
-Create `.env.local` (development) and `.env.production`:
-
-```bash
-# .env.local
-PORT=3000
-NODE_ENV=development
-DATABASE_URL=postgresql://user:password@localhost:5432/nestjs_db
-JWT_SECRET=your-secret-key-here
-CORS_ORIGIN=http://localhost:3000
-
-# .env.production
-PORT=8080
-NODE_ENV=production
-DATABASE_URL=postgresql://user:password@prod-db:5432/nestjs_db
-JWT_SECRET=prod-secret-key
-CORS_ORIGIN=https://yourdomain.com
-```
-
-Load with:
-
-```bash
-# Using dotenv-cli
-npm install dotenv-cli
-dotenv -e .env.local npm run start:dev
-
-# Or source directly
-source .env.local && npm run start:dev
-```
-
----
-
-### Production Build
-
-```bash
-# Build optimized JavaScript
-npm run build
-
-# Output in ./dist directory
-ls -la dist/
-
-# Run production build
-NODE_ENV=production node dist/main.js
-```
-
----
-
-### CI/CD Pipeline Recommendation
-
-```yaml
-# .github/workflows/ci.yml
-name: CI/CD
-
-on:
-  push:
-    branches: [main, develop]
-  pull_request:
-    branches: [main]
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          cache: 'npm'
-
-      - run: npm ci
-      - run: npm run lint
-      - run: npm run build
-      - run: npm test
-      - run: npm run test:e2e
-      - run: npm run test:cov
-
-      - name: Upload coverage
-        uses: codecov/codecov-action@v3
-
-  deploy:
-    needs: test
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Deploy to production
-        run: |
-          echo "Deploy to your hosting..."
-          # Your deployment script
-```
-
----
-
-## Production Readiness
-
-### Checklist for Production Deployment
-
-- [ ] **Error Handling**: Global exception filters configured
-- [ ] **Logging**: Structured logging with timestamps, levels
-- [ ] **Monitoring**: Health checks, metrics, alerting
-- [ ] **Security**: Environment validation, CORS, rate limiting
-- [ ] **Database**: Connection pooling, migrations, backups
-- [ ] **Authentication**: JWT or OAuth2 implemented
-- [ ] **HTTPS**: TLS certificates configured
-- [ ] **Performance**: Load testing completed, caching added
-- [ ] **Testing**: 80%+ coverage, E2E tests passing
-- [ ] **Deployment**: CI/CD pipeline automated
-- [ ] **Documentation**: API docs complete, runbook created
-- [ ] **Scalability**: Horizontal scaling tested
-- [ ] **Backup & Recovery**: Disaster recovery plan
-- [ ] **Compliance**: GDPR, HIPAA (if required)
-
-### Key Production Enhancements
-
-#### Global Exception Filter
+### Role-Based Authorization
 
 ```typescript
+// src/auth/roles.decorator.ts
+import { SetMetadata } from '@nestjs/common';
+
+export const Roles = (...roles: string[]) => SetMetadata('roles', roles);
+
+// src/auth/roles.guard.ts
+import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+
+@Injectable()
+export class RolesGuard implements CanActivate {
+  constructor(private reflector: Reflector) {}
+
+  canActivate(context: ExecutionContext): boolean {
+    const requiredRoles = this.reflector.get<string[]>(
+      'roles',
+      context.getHandler(),
+    );
+
+    if (!requiredRoles) {
+      return true; // No roles required
+    }
+
+    const request = context.switchToHttp().getRequest();
+    const user = request.user;
+
+    return requiredRoles.some(role => user.roles?.includes(role));
+  }
+}
+
+// Usage
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('admin', 'manager')
+@Delete('/users/:id')
+async deleteUser(@Param('id') id: string) {
+  return this.userService.delete(id);
+}
+```
+
+---
+
+## Error Handling
+
+### Exception Filters
+
+```typescript
+// src/common/filters/all-exceptions.filter.ts
 import {
   ExceptionFilter,
   Catch,
@@ -1574,10 +917,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
     // Log error
     this.logger.error(
       `Error in ${request.method} ${request.url}`,
-      exception instanceof Error ? exception.stack : exception,
+      exception instanceof Error ? exception.stack : String(exception),
     );
 
-    // Send error response
+    // Send response
     response.status(status).json({
       statusCode: status,
       timestamp: new Date().toISOString(),
@@ -1588,386 +931,941 @@ export class AllExceptionsFilter implements ExceptionFilter {
 }
 ```
 
-Register in main.ts:
+#### Register Global Filter
 
 ```typescript
+// src/main.ts
 app.useGlobalFilters(new AllExceptionsFilter());
 ```
 
-#### Health Check Endpoint
+#### Custom Exceptions
 
 ```typescript
-@Controller('health')
-export class HealthController {
-  @Get()
-  check() {
-    return {
-      status: 'UP',
-      timestamp: new Date().toISOString(),
-      version: '1.0.0',
-    };
+import { HttpException, HttpStatus } from '@nestjs/common';
+
+export class UserAlreadyExistsException extends HttpException {
+  constructor(email: string) {
+    super(
+      `User with email ${email} already exists`,
+      HttpStatus.BAD_REQUEST,
+    );
   }
+}
+
+// Usage
+if (userExists) {
+  throw new UserAlreadyExistsException(email);
 }
 ```
 
-#### Structured Logging
+---
+
+## Logging & Observability
+
+### Built-in Logger
 
 ```typescript
 import { Logger } from '@nestjs/common';
 
-const logger = new Logger('MyService');
-
-// Different log levels
-logger.log('Application started'); // INFO
-logger.debug('Debug information'); // DEBUG
-logger.warn('Warning message'); // WARN
-logger.error('Error occurred', stack); // ERROR
-logger.verbose('Verbose information'); // VERBOSE
-```
-
----
-
-## Interview Preparation
-
-### What This Project Demonstrates
-
-When discussing this repository in an interview, emphasize:
-
-#### 1. **Backend Architecture Mastery**
-
-"This project demonstrates solid understanding of layered architecture with clear separation between presentation (controllers), business logic (services), and infrastructure layers. The dependency injection pattern enables:
-
-- Loose coupling
-- Testability
-- Maintainability at scale"
-
-#### 2. **Software Engineering Best Practices**
-
-- Clean code principles (single responsibility, DRY)
-- Type safety (TypeScript)
-- Testing (unit + E2E)
-- Code organization (modular)
-- Documentation
-
-#### 3. **NestJS Framework Expertise**
-
-- Decorators and metadata
-- Dependency injection container
-- Module system
-- Request lifecycle understanding
-- Provider scoping
-
-#### 4. **Production Engineering Thinking**
-
-- Security considerations (validation, auth, CORS)
-- Performance optimization roadmap
-- Scalability design (stateless, horizontal scaling)
-- Deployment strategy (Docker, CI/CD)
-- Monitoring and logging
-
-#### 5. **Testing Mindset**
-
-- Unit test design
-- E2E test strategy
-- Test coverage approach
-- Integration testing
-
----
-
-### Interview Questions You Should Be Able to Answer
-
-#### Question 1: "Why separate services from controllers?"
-
-**Answer**: Services encapsulate business logic independent of HTTP framework. This enables:
-
-```typescript
-// Service is reusable and testable without HTTP context
 @Injectable()
-export class GreetingService {
-  generateGreeting(name: string): string {
-    // Pure business logic
-    return `Hello ${name.toUpperCase()}`;
-  }
-}
+export class UserService {
+  private readonly logger = new Logger(UserService.name);
 
-// Controllers handle HTTP concerns
-@Controller()
-export class GreetingController {
-  constructor(private service: GreetingService) {}
-
-  @Get('/greet/:name')
-  greet(@Param('name') name: string) {
-    return this.service.generateGreeting(name);
-  }
-}
-
-// Same service could be used elsewhere
-@WebSocketGateway()
-export class GreetingGateway {
-  constructor(private service: GreetingService) {}
-
-  @SubscribeMessage('greet')
-  greet(name: string) {
-    return this.service.generateGreeting(name);
+  getUser(id: string) {
+    this.logger.log(`Getting user ${id}`);
+    this.logger.debug(`Debug info`);
+    this.logger.warn(`Warning`);
+    this.logger.error(`Error occurred`);
+    this.logger.verbose(`Verbose info`);
   }
 }
 ```
 
----
+### Structured Logging with Winston
 
-#### Question 2: "How does dependency injection work here?"
-
-**Answer**: NestJS uses TypeScript decorators and reflection to:
-
-1. Scan `@Injectable()` classes
-2. Analyze constructor parameters
-3. Automatically resolve and inject dependencies
+```bash
+npm install winston winston-daily-rotate-file
+```
 
 ```typescript
-// NestJS automatically:
-// 1. Sees AppService is @Injectable()
-// 2. Creates singleton instance
-// 3. Injects into AppController constructor
+// src/config/logger.ts
+import * as winston from 'winston';
+
+const logFormat = winston.format.combine(
+  winston.format.timestamp(),
+  winston.format.errors({ stack: true }),
+  winston.format.splat(),
+  winston.format.json(),
+);
+
+export const logger = winston.createLogger({
+  level: process.env.LOG_LEVEL || 'info',
+  format: logFormat,
+  transports: [
+    new winston.transports.Console({
+      format: winston.format.combine(
+        winston.format.colorize(),
+        winston.format.printf(
+          ({ timestamp, level, message, ...meta }) =>
+            `${timestamp} [${level}] ${message} ${
+              Object.keys(meta).length ? JSON.stringify(meta) : ''
+            }`,
+        ),
+      ),
+    }),
+    new winston.transports.File({
+      filename: 'logs/error.log',
+      level: 'error',
+    }),
+    new winston.transports.File({
+      filename: 'logs/combined.log',
+    }),
+  ],
+});
+```
+
+---
+
+## Security Best Practices
+
+### 1. Input Validation
+
+```typescript
+// ✅ Always validate input
+export class CreateUserDto {
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(100)
+  name: string;
+
+  @IsEmail()
+  email: string;
+
+  @Matches(/^[A-Za-z0-9@$!%*?&]{8,}$/)
+  password: string;
+}
+```
+
+### 2. CORS Configuration
+
+```typescript
+app.enableCors({
+  origin: process.env.ALLOWED_ORIGINS?.split(',') || [
+    'http://localhost:3000',
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['X-Total-Count'],
+  maxAge: 3600,
+});
+```
+
+### 3. Rate Limiting
+
+```bash
+npm install @nestjs/throttler
+```
+
+```typescript
+// src/app.module.ts
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+
+@Module({
+  imports: [
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,  // Time window in ms
+        limit: 100,  // Max requests per time window
+      },
+    ]),
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
+})
+export class AppModule {}
+```
+
+### 4. Helmet (Security Headers)
+
+```bash
+npm install @nestjs/helmet
+```
+
+```typescript
+import { HelmetModule } from '@nestjs/helmet';
+
+@Module({
+  imports: [HelmetModule],
+})
+export class AppModule {}
+```
+
+### 5. Environment Variables
+
+```typescript
+// Validate env vars at startup
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required');
+}
+
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL environment variable is required');
+}
+```
+
+### 6. Password Hashing
+
+```bash
+npm install bcrypt
+npm install --save-dev @types/bcrypt
+```
+
+```typescript
+import * as bcrypt from 'bcrypt';
+
+export async function hashPassword(password: string): Promise<string> {
+  const saltRounds = 10;
+  return bcrypt.hash(password, saltRounds);
+}
+
+export async function comparePasswords(
+  plainPassword: string,
+  hashedPassword: string,
+): Promise<boolean> {
+  return bcrypt.compare(plainPassword, hashedPassword);
+}
+```
+
+### 7. Security Checklist
+
+- [ ] Input validation on all endpoints
+- [ ] Authentication enabled (JWT/OAuth2)
+- [ ] Authorization (RBAC) implemented
+- [ ] CORS properly configured
+- [ ] Rate limiting enabled
+- [ ] Helmet headers enabled
+- [ ] Environment variable validation
+- [ ] HTTPS/TLS configured
+- [ ] Passwords hashed (bcrypt)
+- [ ] Secrets stored securely (not in code)
+- [ ] Error messages don't expose internals
+- [ ] Dependencies scanned for vulnerabilities
+
+---
+
+## Database Integration
+
+### TypeORM Setup
+
+```bash
+npm install @nestjs/typeorm typeorm pg
+```
+
+#### Configuration
+
+```typescript
+// src/database/database.module.ts
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from './entities/user.entity';
+
+@Module({
+  imports: [
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: process.env.DATABASE_HOST || 'localhost',
+      port: parseInt(process.env.DATABASE_PORT) || 5432,
+      username: process.env.DATABASE_USER || 'postgres',
+      password: process.env.DATABASE_PASSWORD,
+      database: process.env.DATABASE_NAME || 'nestjs_db',
+      entities: [User],
+      synchronize: process.env.NODE_ENV === 'development', // Auto-sync schema
+      logging: process.env.NODE_ENV === 'development',
+    }),
+    TypeOrmModule.forFeature([User]),
+  ],
+})
+export class DatabaseModule {}
+```
+
+#### Entity Definition
+
+```typescript
+// src/database/entities/user.entity.ts
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+
+@Entity('users')
+export class User {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column({ unique: true })
+  email: string;
+
+  @Column()
+  name: string;
+
+  @Column({ select: false })
+  password: string;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+}
+```
+
+#### Repository Usage
+
+```typescript
+// src/users/users.service.ts
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from '../database/entities/user.entity';
 
 @Injectable()
-export class AppService {}
+export class UsersService {
+  constructor(
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+  ) {}
 
-@Controller()
-export class AppController {
-  constructor(private appService: AppService) {
-    // appService auto-injected
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    const user = this.userRepository.create(createUserDto);
+    return this.userRepository.save(user);
+  }
+
+  async findAll(): Promise<User[]> {
+    return this.userRepository.find();
+  }
+
+  async findById(id: string): Promise<User | null> {
+    return this.userRepository.findOneBy({ id });
+  }
+
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
+    await this.userRepository.update(id, updateUserDto);
+    return this.findById(id);
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.userRepository.delete(id);
   }
 }
 ```
 
-Benefits:
-
-- No manual wiring
-- No service locators
-- Mockable for testing
-- Compile-time safety
-
 ---
 
-#### Question 3: "How would you scale this to 100K requests/second?"
+## Performance Optimization
 
-**Answer Strategy**:
+### 1. Caching
 
-```
-1. **Load Distribution**: Multiple server instances behind load balancer
-   - Stateless design (already achieved)
-   - Horizontal scaling
-
-2. **Database**: Connection pooling, read replicas, sharding
-   - Current: N/A (no DB)
-   - Add: TypeORM with pooling
-
-3. **Caching**: Redis for hot data
-   - Cache response data
-   - Cache computed values
-
-4. **Message Queues**: Async processing
-   - Heavy operations → background jobs
-   - Bull Queue or RabbitMQ
-
-5. **CDN**: Static content delivery
-   - Offload static assets
-
-6. **Monitoring**: Real-time insights
-   - Prometheus metrics
-   - Grafana dashboards
-   - ELK logging
-
-Example with Redis Cache:
+```bash
+npm install @nestjs/cache-manager cache-manager
 ```
 
 ```typescript
+// src/app.module.ts
+import { CacheModule } from '@nestjs/cache-manager';
+
 @Module({
   imports: [
     CacheModule.register({
-      ttl: 300,      // 5 minutes
-      max: 100,      // 100 entries
+      ttl: 300, // 5 minutes
+      max: 100, // Max 100 entries
     }),
   ],
 })
 export class AppModule {}
-
-@Get('/greet/:name')
-@Cacheable({ ttl: 300 })
-greet(@Param('name') name: string) {
-  return this.service.greet(name);
-}
 ```
 
----
-
-#### Question 4: "What security issues exist and how would you fix them?"
-
-**Current Issues**:
+### 2. Query Optimization
 
 ```typescript
-// ❌ No input validation
-@Get('/hello')
-sendHellotoUser(@Body('name') name: string) {
-  return this.appService.sendHelloToUser(name);
-  // What if name = '<img src=x onerror="alert(1)">'?
-}
-
-// ❌ No authentication
-@Get('/admin/users')
-getUsers() {
-  return this.userService.findAll();
-  // Anyone can call this
-}
-
-// ❌ No CORS
-// By default: accepts requests from any origin
-
-// ❌ No rate limiting
-// Can be DDoS'd
-```
-
-**Solutions**:
-
-```typescript
-// 1. Add validation
-import { IsString, IsNotEmpty } from 'class-validator';
-
-class GreetingDto {
-  @IsString()
-  @IsNotEmpty()
-  name: string;
-}
-
-// 2. Add authentication
-@UseGuards(JwtAuthGuard)
-@Get('/protected')
-protectedRoute() {}
-
-// 3. Configure CORS
-app.enableCors({
-  origin: ['https://yourdomain.com'],
-});
-
-// 4. Add rate limiting
-@UseGuards(ThrottlerGuard)
+// Avoid N+1 queries
 @Get()
-limited() {}
+async getUsers() {
+  // ❌ Bad - N+1 query problem
+  const users = await this.userRepository.find();
+  const usersWithPosts = await Promise.all(
+    users.map(async (user) => {
+      const posts = await this.postsRepository.find({
+        where: { userId: user.id },
+      });
+      return { ...user, posts };
+    }),
+  );
+
+  // ✅ Good - single query with relations
+  const users = await this.userRepository.find({
+    relations: ['posts'],
+  });
+
+  return users;
+}
+```
+
+### 3. Database Connection Pooling
+
+```typescript
+TypeOrmModule.forRoot({
+  type: 'postgres',
+  host: 'localhost',
+  port: 5432,
+  poolSize: 10,
+  maxConnections: 20,
+  connectionTimeoutMillis: 10000,
+})
+```
+
+### 4. Response Compression
+
+```typescript
+import * as compression from 'compression';
+
+app.use(compression());
+```
+
+### 5. Pagination
+
+```typescript
+// src/common/pagination.ts
+export class PaginationDto {
+  @Type(() => Number)
+  @Min(1)
+  page: number = 1;
+
+  @Type(() => Number)
+  @Min(1)
+  @Max(100)
+  limit: number = 10;
+}
+
+@Get()
+async getUsers(@Query() { page, limit }: PaginationDto) {
+  const skip = (page - 1) * limit;
+  const [data, total] = await this.userRepository.findAndCount({
+    skip,
+    take: limit,
+  });
+
+  return {
+    data,
+    pagination: { page, limit, total, pages: Math.ceil(total / limit) },
+  };
+}
 ```
 
 ---
 
-#### Question 5: "Explain your testing strategy"
+## Testing Strategy
 
-**Answer**:
-
-```
-Pyramid approach:
-
-         ▲
-        /|\
-       / | \        E2E Tests (10%)
-      /  |  \       - Full request cycles
-     /   |   \      - Module integration
-    /    |    \
-   /     |     \    Integration Tests (30%)
-  /      |      \   - Service + Repository
- /       |       \  - Database queries
-/_______|_______\
-   Unit Tests (60%)
-   - Services isolated
-   - Mocked dependencies
-   - Pure logic
-```
-
-Current implementation:
+### Unit Tests
 
 ```typescript
-// Unit test (isolated)
-describe('AppService', () => {
-  it('should greet user', () => {
-    const service = new AppService();
-    expect(service.sendHelloToUser('John')).toBe('Hello John');
+// src/app.controller.spec.ts
+import { Test, TestingModule } from '@nestjs/testing';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+
+describe('AppController', () => {
+  let controller: AppController;
+  let service: AppService;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [AppController],
+      providers: [AppService],
+    }).compile();
+
+    controller = module.get<AppController>(AppController);
+    service = module.get<AppService>(AppService);
+  });
+
+  it('should be defined', () => {
+    expect(controller).toBeDefined();
+  });
+
+  describe('getHello', () => {
+    it('should return "Hello World!"', () => {
+      const result = 'Hello World!';
+      jest.spyOn(service, 'getHello').mockReturnValue(result);
+
+      expect(controller.getHello()).toBe(result);
+    });
   });
 });
+```
 
-// E2E test (full stack)
+### E2E Tests
+
+```typescript
+// test/app.e2e-spec.ts
+import { Test, TestingModule } from '@nestjs/testing';
+import { INestApplication } from '@nestjs/common';
+import * as request from 'supertest';
+import { AppModule } from '../src/app.module';
+
 describe('AppController (e2e)', () => {
-  it('should respond to GET /', async () => {
-    await request(app.getHttpServer())
+  let app: INestApplication;
+
+  beforeAll(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    app = moduleFixture.createNestApplication();
+    await app.init();
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  it('/ (GET)', () => {
+    return request(app.getHttpServer())
       .get('/')
       .expect(200)
       .expect('Hello World!');
   });
+
+  describe('Authentication', () => {
+    it('should reject unauthorized requests', () => {
+      return request(app.getHttpServer())
+        .get('/protected')
+        .expect(401);
+    });
+
+    it('should accept valid JWT', () => {
+      const token = 'valid.jwt.token';
+      return request(app.getHttpServer())
+        .get('/protected')
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+    });
+  });
 });
+```
+
+### Running Tests
+
+```bash
+# Run all tests
+npm test
+
+# Watch mode
+npm run test:watch
+
+# Coverage report
+npm run test:cov
+
+# E2E tests
+npm run test:e2e
 ```
 
 ---
 
-#### Question 6: "What design patterns do you use here?"
+## CI/CD Pipeline
 
-**Answer**:
+### GitHub Actions
 
-| Pattern                  | Usage                     | Code                                    |
-| ------------------------ | ------------------------- | --------------------------------------- |
-| **Dependency Injection** | Loose coupling            | `constructor(private service: Service)` |
-| **Service Layer**        | Business logic separation | `@Injectable()` services                |
-| **Controller**           | Route handling            | `@Controller() @Get()`                  |
-| **Module**               | Feature organization      | `@Module()` with imports/providers      |
-| **Singleton**            | Shared instances          | Default DI scope                        |
-| **Decorator**            | Metadata attachment       | `@Injectable()`, `@Get()`               |
-| **Factory**              | Object creation           | `NestFactory.create()`                  |
+```yaml
+# .github/workflows/ci.yml
+name: CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: nestjs_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Run tests
+        run: npm test
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nestjs_test
+
+      - name: Run E2E tests
+        run: npm run test:e2e
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nestjs_test
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage/lcov.info
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build and push Docker image
+        run: |
+          docker build -t nestjs-fundamentals:${{ github.sha }} .
+          docker push nestjs-fundamentals:${{ github.sha }}
+
+      - name: Deploy to production
+        run: |
+          echo "Deploying to production..."
+          # Add your deployment commands here
+```
 
 ---
 
-### Talking Points for Senior Roles
+## Deployment
 
-- "I designed the service layer to be framework-agnostic, enabling portability"
-- "Dependency injection enables 90%+ test coverage with minimal mocks"
-- "Modular structure allows easy feature extraction into microservices"
-- "Type-safe endpoints prevent runtime errors common in JavaScript"
-- "E2E tests ensure integration correctness, preventing hidden bugs"
-- "Future-proofed for database, authentication, and caching additions"
+### Docker Deployment
+
+#### Dockerfile
+
+```dockerfile
+# Stage 1: Build
+FROM node:18-alpine AS builder
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci
+
+COPY . .
+RUN npm run build
+
+# Stage 2: Runtime
+FROM node:18-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+COPY --from=builder /app/dist ./dist
+
+EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3000/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
+
+CMD ["node", "dist/main.js"]
+```
+
+#### Docker Compose
+
+```yaml
+# docker-compose.yml
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: nestjs-app
+    ports:
+      - '3000:3000'
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_HOST: postgres
+      DATABASE_URL: postgresql://nestjs:nestjs@postgres:5432/nestjs_db
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: nestjs-postgres
+    environment:
+      POSTGRES_DB: nestjs_db
+      POSTGRES_USER: nestjs
+      POSTGRES_PASSWORD: nestjs
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U nestjs']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+```
+
+### Cloud Deployment
+
+#### AWS EC2
+
+```bash
+# SSH into instance
+ssh -i key.pem ec2-user@instance-ip
+
+# Clone repository
+git clone <repo-url>
+cd nestjs-fundamentals
+
+# Install Node
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# Install dependencies
+npm ci --omit=dev
+
+# Build
+npm run build
+
+# Start with PM2
+npm install -g pm2
+pm2 start dist/main.js --name "nestjs-app"
+pm2 save
+pm2 startup
+```
+
+#### Heroku
+
+```bash
+# Login
+heroku login
+
+# Create app
+heroku create nestjs-fundamentals
+
+# Set environment variables
+heroku config:set NODE_ENV=production
+heroku config:set JWT_SECRET=your-secret
+heroku config:set DATABASE_URL=your-db-url
+
+# Deploy
+git push heroku main
+```
 
 ---
 
-## Quick Navigation
+## Production Example Project
 
-**Jump to Section**:
+### Full Example: User Management API
 
-- [Executive Overview](#executive-overview) - What this project is
-- [Quick Start](#quick-start) - Get it running in 5 minutes
-- [Technology Stack](#technology-stack) - All dependencies explained
-- [Architecture Overview](#architecture-overview) - System design
-- [Project Structure](#project-structure) - Folder organization
-- [API Documentation](#api-documentation) - All endpoints
-- [Design Patterns](#design-patterns) - Patterns used and explained
-- [Security Architecture](#security-architecture) - Security considerations
-- [Performance Considerations](#performance-considerations) - Scalability roadmap
-- [Testing Strategy](#testing-strategy) - Test approach
-- [Development & Deployment](#development--deployment) - Setup and deployment
-- [Production Readiness](#production-readiness) - Production checklist
-- [Interview Preparation](#interview-preparation) - Talking points
+```typescript
+// src/users/entities/user.entity.ts
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+
+@Entity('users')
+export class User {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column({ unique: true })
+  email: string;
+
+  @Column()
+  name: string;
+
+  @Column({ select: false })
+  password: string;
+
+  @Column({ default: false })
+  isActive: boolean;
+
+  @Column({ type: 'enum', enum: ['user', 'admin'], default: 'user' })
+  role: string;
+}
+
+// src/users/dto/create-user.dto.ts
+import { IsString, IsEmail, Matches, MinLength } from 'class-validator';
+
+export class CreateUserDto {
+  @IsString()
+  name: string;
+
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  @MinLength(8)
+  @Matches(/^[A-Za-z0-9@$!%*?&]{8,}$/)
+  password: string;
+}
+
+// src/users/users.service.ts
+import { Injectable, ConflictException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from './entities/user.entity';
+import { CreateUserDto } from './dto/create-user.dto';
+import * as bcrypt from 'bcrypt';
+
+@Injectable()
+export class UsersService {
+  constructor(
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+  ) {}
+
+  async create(createUserDto: CreateUserDto): Promise<Omit<User, 'password'>> {
+    const existing = await this.userRepository.findOne({
+      where: { email: createUserDto.email },
+    });
+
+    if (existing) {
+      throw new ConflictException('User with this email already exists');
+    }
+
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+
+    const user = this.userRepository.create({
+      ...createUserDto,
+      password: hashedPassword,
+    });
+
+    const savedUser = await this.userRepository.save(user);
+
+    const { password, ...result } = savedUser;
+    return result;
+  }
+
+  async findAll(): Promise<User[]> {
+    return this.userRepository.find();
+  }
+
+  async findById(id: string): Promise<User> {
+    return this.userRepository.findOneBy({ id });
+  }
+
+  async findByEmail(email: string): Promise<User> {
+    return this.userRepository.findOne({ where: { email } });
+  }
+}
+
+// src/users/users.controller.ts
+import { Controller, Get, Post, Body, Param, UseGuards } from '@nestjs/common';
+import { UsersService } from './users.service';
+import { CreateUserDto } from './dto/create-user.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+
+@Controller('/api/users')
+export class UsersController {
+  constructor(private usersService: UsersService) {}
+
+  @Post()
+  create(@Body() createUserDto: CreateUserDto) {
+    return this.usersService.create(createUserDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  findAll() {
+    return this.usersService.findAll();
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':id')
+  findById(@Param('id') id: string) {
+    return this.usersService.findById(id);
+  }
+}
+```
 
 ---
 
 ## Contributing
 
-When contributing to this project:
-
-1. Follow existing code style (ESLint config enforced)
-2. Add tests for new features
-3. Update documentation
-4. Keep git history clean
-5. Write meaningful commit messages
+### Development Workflow
 
 ```bash
-# Before committing
-npm run lint      # Check style
-npm run format    # Format code
-npm test          # Run tests
-npm run test:cov  # Check coverage
+# Create feature branch
+git checkout -b feature/your-feature
+
+# Make changes
+npm run start:dev
+
+# Test
+npm test
+npm run test:e2e
+
+# Code quality
+npm run lint
+npm run format
+
+# Commit
+git commit -m "feat: add new feature"
+
+# Push
+git push origin feature/your-feature
 ```
+
+### Pull Request Guidelines
+
+- Clear description of changes
+- Tests passing
+- Code coverage maintained
+- Documentation updated
+
+---
+
+## Technology Stack
+
+| Technology     | Version | Purpose                    |
+| -------------- | ------- | -------------------------- |
+| NestJS         | ^11.0.1 | Framework                  |
+| Express        | ^4.18   | HTTP Server                |
+| TypeScript     | ^5.7.3  | Type Safety                |
+| Node.js        | 18+     | Runtime                    |
+| Jest           | ^30.0.0 | Testing                    |
+| PostgreSQL     | 15      | Database                   |
+| TypeORM        | ^0.3    | ORM                        |
+| JWT            | ^9      | Authentication             |
+| Passport       | ^0.6    | Authentication Strategy    |
 
 ---
 
@@ -1977,53 +1875,12 @@ UNLICENSED (Proprietary)
 
 ---
 
-## Project Statistics
+## Support
 
-| Metric                     | Value     |
-| -------------------------- | --------- |
-| **Total Lines of Code**    | ~100      |
-| **Core Source Files**      | 4         |
-| **Test Files**             | 2         |
-| **TypeScript Strict Mode** | Enabled   |
-| **Code Coverage**          | ~70%      |
-| **Build Time**             | <1 second |
-| **Docker Image Size**      | ~200 MB   |
+For issues, questions, or suggestions, please create an issue on GitHub.
 
 ---
 
-## Next Steps
-
-### Immediate (Week 1)
-
-- [ ] Add input validation (class-validator)
-- [ ] Implement error handling (exception filters)
-- [ ] Add structured logging
-- [ ] Write additional tests
-
-### Short-term (Month 1)
-
-- [ ] Integrate database (TypeORM + PostgreSQL)
-- [ ] Implement authentication (JWT)
-- [ ] Add request/response DTOs
-- [ ] Configure CORS & rate limiting
-
-### Medium-term (Quarter 1)
-
-- [ ] Add database migrations
-- [ ] Implement caching layer
-- [ ] Set up monitoring & logging
-- [ ] Create deployment pipeline
-
-### Long-term (Ongoing)
-
-- [ ] Microservices architecture
-- [ ] Message queue integration
-- [ ] Advanced scalability patterns
-- [ ] Performance optimization
-
----
-
-**Created**: 2024  
-**Framework**: NestJS 11.0.1  
-**Runtime**: Node.js 18+  
-**Language**: TypeScript 5.7.3
+**Last Updated**: 2024  
+**Version**: 1.0.0  
+**Maintained By**: Development Team
