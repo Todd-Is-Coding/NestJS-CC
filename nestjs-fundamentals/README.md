@@ -6,7 +6,7 @@
 
 1. [Introduction](#introduction)
 2. [Project Setup](#project-setup)
-3. [Express Core Concepts](#express-core-concepts)
+3. [NestJS Core Concepts](#nestjs-core-concepts)
 4. [Routing Architecture](#routing-architecture)
 5. [Middleware Deep Dive](#middleware-deep-dive)
 6. [Request & Response Handling](#request--response-handling)
@@ -111,77 +111,273 @@ PORT=8080 npm run start:prod
 
 ---
 
-## Express Core Concepts
+## NestJS Core Concepts
 
-### What is Express
+### What is NestJS
 
-Express is a minimal HTTP server framework for Node.js. NestJS uses Express as the underlying HTTP adapter by default.
+NestJS is a progressive Node.js framework for building efficient, scalable, and maintainable server-side applications. It provides a level of abstraction above common Node.js frameworks (Express/Fastify) and exposes their APIs directly to the developer.
 
-### Key Express Concepts Used
+### Key NestJS Concepts
 
-#### 1. **Middleware**
+#### 1. **Decorators**
 
-```typescript
-// Express middleware pattern
-app.use((req, res, next) => {
-  console.log(`${req.method} ${req.url}`);
-  next(); // Pass to next middleware
-});
-```
-
-#### 2. **Request/Response Cycle**
-
-```
-Incoming Request
-    ↓
-Middleware Stack
-    ↓
-Route Handler
-    ↓
-Business Logic
-    ↓
-Response Sent
-```
-
-#### 3. **Route Handlers**
+NestJS uses TypeScript decorators to define metadata for classes, methods, and parameters:
 
 ```typescript
-// Express style
-app.get('/', (req, res) => {
-  res.send('Hello World');
-});
+@Controller('/users') // Class decorator - defines controller
+export class UserController {
+  @Get(':id') // Method decorator - defines route
+  @UseGuards(JwtAuthGuard) // Method decorator - applies guards
+  getUser(@Param('id') id: string) {} // Parameter decorator
+}
+```
 
-// NestJS wrapper
+#### 2. **Dependency Injection (DI)**
+
+NestJS has a built-in IoC (Inversion of Control) container that manages object creation and dependency resolution:
+
+```typescript
+@Injectable()
+export class UsersService {
+  findAll(): User[] {
+    return [];
+  }
+}
+
+@Controller('/users')
+export class UsersController {
+  // Dependencies injected automatically
+  constructor(private usersService: UsersService) {}
+
+  @Get()
+  getAllUsers(): User[] {
+    return this.usersService.findAll();
+  }
+}
+```
+
+**Benefits:**
+
+- ✅ Loose coupling
+- ✅ Easy testing (can mock dependencies)
+- ✅ Automatic instance management
+
+#### 3. **Modules**
+
+Modules are organizational units that group related components (controllers, services, providers):
+
+```typescript
+@Module({
+  imports: [DatabaseModule], // Import other modules
+  controllers: [UserController], // Register controllers
+  providers: [UserService], // Register services
+  exports: [UserService], // Export for use by other modules
+})
+export class UserModule {}
+```
+
+#### 4. **Providers**
+
+Any class that can be injected as a dependency:
+
+```typescript
+@Injectable()
+export class ConfigService {
+  getApiKey(): string {
+    return process.env.API_KEY;
+  }
+}
+
+// Register as provider
+@Module({
+  providers: [ConfigService],
+})
+export class AppModule {}
+```
+
+#### 5. **Controllers**
+
+Handle incoming requests and return responses. Controllers use decorators to define routes:
+
+```typescript
+@Controller('api/users')
+export class UsersController {
+  constructor(private usersService: UsersService) {}
+
+  @Get()
+  findAll() {
+    return this.usersService.findAll();
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.usersService.findOne(id);
+  }
+
+  @Post()
+  create(@Body() createUserDto: CreateUserDto) {
+    return this.usersService.create(createUserDto);
+  }
+}
+```
+
+#### 6. **Services**
+
+Contain business logic and can be used by controllers or other services:
+
+```typescript
+@Injectable()
+export class UsersService {
+  constructor(private repository: UsersRepository) {}
+
+  async findAll(): Promise<User[]> {
+    return this.repository.find();
+  }
+
+  async findOne(id: string): Promise<User> {
+    return this.repository.findById(id);
+  }
+
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    return this.repository.save(createUserDto);
+  }
+}
+```
+
+#### 7. **Guards**
+
+Determine whether a request should be handled by the route handler:
+
+```typescript
+@Injectable()
+export class AuthGuard implements CanActivate {
+  canActivate(context: ExecutionContext): boolean {
+    const request = context.switchToHttp().getRequest();
+    return !!request.user; // Allow if user is authenticated
+  }
+}
+
+// Usage in controller
+@UseGuards(AuthGuard)
+@Get('/protected')
+getProtected() {
+  return 'Secret data';
+}
+```
+
+#### 8. **Interceptors**
+
+Intercept function calls/responses and can modify input/output:
+
+```typescript
+@Injectable()
+export class LoggingInterceptor implements NestInterceptor {
+  intercept(context: ExecutionContext, next: CallHandler) {
+    console.log('Before...');
+    return next.handle().pipe(
+      tap(() => console.log('After...')),
+    );
+  }
+}
+
+// Usage
+@UseInterceptors(LoggingInterceptor)
 @Get()
-getHello(): string {
+getHello() {
   return 'Hello World';
 }
 ```
 
-#### 4. **Error Handling**
+#### 9. **Pipes**
+
+Transform and validate data:
 
 ```typescript
-// Express error handler
-app.use((err, req, res, next) => {
-  res.status(500).json({ error: err.message });
-});
+@Injectable()
+export class ValidationPipe implements PipeTransform {
+  transform(value: any): any {
+    return value; // Transform data
+  }
+}
 
-// NestJS exception filters
-@Catch(HttpException)
-export class HttpExceptionFilter {}
+// Built-in pipes
+@Get(':id')
+findOne(@Param('id', ParseIntPipe) id: number) {
+  // Pipe transforms string ':id' to number
+}
 ```
 
-### Why NestJS Over Express
+#### 10. **Exception Filters**
 
-| Feature           | Express | NestJS   |
-| ----------------- | ------- | -------- |
-| Type Safety       | ❌      | ✅       |
-| Structure         | ❌      | ✅       |
-| DI Container      | ❌      | ✅       |
-| Decorators        | ❌      | ✅       |
-| Modularity        | ⚠️      | ✅       |
-| Testing Support   | ⚠️      | ✅       |
-| Learning Curve    | Easy    | Moderate |
+Handle thrown exceptions:
+
+```typescript
+@Catch(HttpException)
+export class HttpExceptionFilter implements ExceptionFilter {
+  catch(exception: HttpException, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse();
+    const status = exception.getStatus();
+
+    response.status(status).json({
+      statusCode: status,
+      message: exception.getResponse(),
+    });
+  }
+}
+
+// Usage
+@UseFilters(HttpExceptionFilter)
+@Get()
+getHello() {
+  throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+}
+```
+
+### Request Lifecycle
+
+Complete flow of a request through NestJS:
+
+```
+HTTP Request
+    ↓
+[1] Express Middleware (app.use())
+    ↓
+[2] NestJS Platform Handler
+    ↓
+[3] Global Middleware
+    ↓
+[4] Module Middleware
+    ↓
+[5] Guards (Authentication/Authorization)
+    ↓
+[6] Before Interceptors
+    ↓
+[7] Pipes (Validation/Transformation)
+    ↓
+[8] Controller Route Handler
+    ↓
+[9] Service Layer (Business Logic)
+    ↓
+[10] After Interceptors
+    ↓
+[11] Exception Filters (if error)
+    ↓
+[12] HTTP Response
+```
+
+### NestJS vs Other Frameworks
+
+| Feature         | Express | NestJS   | Fastify   |
+| --------------- | ------- | -------- | --------- |
+| Type Safety     | ❌      | ✅       | ⚠️        |
+| Structure       | ❌      | ✅       | ⚠️        |
+| DI Container    | ❌      | ✅       | ❌        |
+| Decorators      | ❌      | ✅       | ❌        |
+| Modularity      | ⚠️      | ✅       | ⚠️        |
+| Testing Support | ⚠️      | ✅       | ⚠️        |
+| Performance     | Good    | Good     | Excellent |
+| Learning Curve  | Easy    | Moderate | Moderate  |
 
 ---
 
@@ -190,30 +386,30 @@ export class HttpExceptionFilter {}
 ### Route Definition
 
 ```typescript
-@Controller('/api/v1')  // Base path
+@Controller('/api/v1') // Base path
 export class AppController {
-  @Get()              // GET /api/v1
+  @Get() // GET /api/v1
   getRoot() {}
 
-  @Get('/hello')      // GET /api/v1/hello
+  @Get('/hello') // GET /api/v1/hello
   getHello() {}
 
-  @Get(':id')         // GET /api/v1/:id (path parameter)
+  @Get(':id') // GET /api/v1/:id (path parameter)
   getById(@Param('id') id: string) {}
 
-  @Get('/search')     // GET /api/v1/search?query=...
+  @Get('/search') // GET /api/v1/search?query=...
   search(@Query('query') query: string) {}
 
-  @Post()             // POST /api/v1
+  @Post() // POST /api/v1
   create(@Body() data: any) {}
 
-  @Put(':id')         // PUT /api/v1/:id
+  @Put(':id') // PUT /api/v1/:id
   update(@Param('id') id: string, @Body() data: any) {}
 
-  @Delete(':id')      // DELETE /api/v1/:id
+  @Delete(':id') // DELETE /api/v1/:id
   delete(@Param('id') id: string) {}
 
-  @Patch(':id')       // PATCH /api/v1/:id
+  @Patch(':id') // PATCH /api/v1/:id
   patch(@Param('id') id: string, @Body() data: any) {}
 }
 ```
@@ -284,9 +480,7 @@ export class LoggingMiddleware implements NestMiddleware {
 @Module({})
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(LoggingMiddleware)
-      .forRoutes('*'); // Apply to all routes
+    consumer.apply(LoggingMiddleware).forRoutes('*'); // Apply to all routes
   }
 }
 ```
@@ -647,9 +841,9 @@ async function bootstrap() {
   // Enable validation on all endpoints
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true,            // Strip unknown properties
+      whitelist: true, // Strip unknown properties
       forbidNonWhitelisted: true, // Reject unknown properties
-      transform: true,            // Auto-transform payloads
+      transform: true, // Auto-transform payloads
       transformOptions: {
         enableImplicitConversion: true,
       },
@@ -676,7 +870,10 @@ export class UserController {
 #### Custom Validators
 
 ```typescript
-import { ValidatorConstraint, ValidatorConstraintInterface } from 'class-validator';
+import {
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
+} from 'class-validator';
 
 @ValidatorConstraint({ name: 'isUniqueEmail', async: true })
 export class IsUniqueEmailConstraint implements ValidatorConstraintInterface {
@@ -945,10 +1142,7 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 
 export class UserAlreadyExistsException extends HttpException {
   constructor(email: string) {
-    super(
-      `User with email ${email} already exists`,
-      HttpStatus.BAD_REQUEST,
-    );
+    super(`User with email ${email} already exists`, HttpStatus.BAD_REQUEST);
   }
 }
 
@@ -1050,9 +1244,7 @@ export class CreateUserDto {
 
 ```typescript
 app.enableCors({
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || [
-    'http://localhost:3000',
-  ],
+  origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -1075,8 +1267,8 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
   imports: [
     ThrottlerModule.forRoot([
       {
-        ttl: 60000,  // Time window in ms
-        limit: 100,  // Max requests per time window
+        ttl: 60000, // Time window in ms
+        limit: 100, // Max requests per time window
       },
     ]),
   ],
@@ -1328,7 +1520,7 @@ TypeOrmModule.forRoot({
   poolSize: 10,
   maxConnections: 20,
   connectionTimeoutMillis: 10000,
-})
+});
 ```
 
 ### 4. Response Compression
@@ -1444,9 +1636,7 @@ describe('AppController (e2e)', () => {
 
   describe('Authentication', () => {
     it('should reject unauthorized requests', () => {
-      return request(app.getHttpServer())
-        .get('/protected')
-        .expect(401);
+      return request(app.getHttpServer()).get('/protected').expect(401);
     });
 
     it('should accept valid JWT', () => {
@@ -1855,17 +2045,17 @@ git push origin feature/your-feature
 
 ## Technology Stack
 
-| Technology     | Version | Purpose                    |
-| -------------- | ------- | -------------------------- |
-| NestJS         | ^11.0.1 | Framework                  |
-| Express        | ^4.18   | HTTP Server                |
-| TypeScript     | ^5.7.3  | Type Safety                |
-| Node.js        | 18+     | Runtime                    |
-| Jest           | ^30.0.0 | Testing                    |
-| PostgreSQL     | 15      | Database                   |
-| TypeORM        | ^0.3    | ORM                        |
-| JWT            | ^9      | Authentication             |
-| Passport       | ^0.6    | Authentication Strategy    |
+| Technology | Version | Purpose                 |
+| ---------- | ------- | ----------------------- |
+| NestJS     | ^11.0.1 | Framework               |
+| Express    | ^4.18   | HTTP Server             |
+| TypeScript | ^5.7.3  | Type Safety             |
+| Node.js    | 18+     | Runtime                 |
+| Jest       | ^30.0.0 | Testing                 |
+| PostgreSQL | 15      | Database                |
+| TypeORM    | ^0.3    | ORM                     |
+| JWT        | ^9      | Authentication          |
+| Passport   | ^0.6    | Authentication Strategy |
 
 ---
 
